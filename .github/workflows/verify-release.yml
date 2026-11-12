@@ -1,0 +1,37 @@
+name: Verify a released APK
+
+# Re-checks the APK from an earlier run and adds the result to its release notes.
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: 'Run ID of the "Android APK" run that built it'
+        required: true
+      tag:
+        description: 'Release tag to annotate'
+        required: true
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        with:
+          name: paisa-pause-apk
+          run-id: ${{ inputs.run_id }}
+          github-token: ${{ github.token }}
+          path: out
+      - name: Check the APK
+        run: scripts/check-apk.sh out/*.apk
+      - name: Add the result to the release notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "${{ inputs.tag }}" --repo "$GITHUB_REPOSITORY" --json body --jq .body > notes.md
+          cat apk-check.md >> notes.md
+          gh release edit "${{ inputs.tag }}" --repo "$GITHUB_REPOSITORY" --notes-file notes.md
