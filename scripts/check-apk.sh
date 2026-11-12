@@ -4,7 +4,7 @@
 set -euo pipefail
 APK="$1"
 AAPT2=$(ls "$ANDROID_HOME"/build-tools/*/aapt2 | sort -V | tail -1)
-"$AAPT2" dump badging "$APK" | grep -E "^(package|sdkVersion|targetSdkVersion|native-code|application-label):" > apk-info.txt || true
+"$AAPT2" dump badging "$APK" | grep -E "^(package|sdkVersion|minSdkVersion|targetSdkVersion|native-code|application-label):" > apk-info.txt || true
 "$AAPT2" dump permissions "$APK" > apk-permissions.txt
 cat apk-info.txt apk-permissions.txt
 if grep -q "android.permission.INTERNET" apk-permissions.txt; then
