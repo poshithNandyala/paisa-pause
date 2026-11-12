@@ -1,0 +1,56 @@
+{
+  "expo": {
+    "name": "Paisa Pause",
+    "slug": "paisa-pause",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "paisapause",
+    "userInterfaceStyle": "automatic",
+    "backgroundColor": "#FAF7F2",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.poshith.paisapause"
+    },
+    "android": {
+      "package": "com.poshith.paisapause",
+      "versionCode": 1,
+      "allowBackup": false,
+      "adaptiveIcon": {
+        "backgroundColor": "#FAF7F2",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "permissions": [],
+      "blockedPermissions": [
+        "android.permission.INTERNET",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.SYSTEM_ALERT_WINDOW",
+        "android.permission.VIBRATE",
+        "android.permission.ACCESS_NETWORK_STATE"
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-sqlite",
+        {
+          "useSQLCipher": true,
+          "enableFTS": false
+        }
+      ],
+      "expo-secure-store",
+      "expo-sharing",
+      [
+        "expo-system-ui",
+        {}
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": false
+    }
+  }
+}
