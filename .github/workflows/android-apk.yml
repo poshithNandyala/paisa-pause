@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: android-apk-${{ github.ref }}
@@ -71,3 +71,15 @@ jobs:
           path: out/*.apk
           retention-days: 30
           if-no-files-found: error
+
+      - name: Publish to GitHub Releases (private repo)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION=$(node -p "require('./app.json').expo.version")
+          TAG="v${VERSION}-build.${GITHUB_RUN_NUMBER}"
+          gh release create "$TAG" out/*.apk \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "Paisa Pause ${VERSION} (build ${GITHUB_RUN_NUMBER})" \
+            --notes "Android APK (arm64-v8a + armeabi-v7a) built from ${GITHUB_SHA::7}. Open this page on your phone, tap the .apk, then allow installing from your browser if asked."

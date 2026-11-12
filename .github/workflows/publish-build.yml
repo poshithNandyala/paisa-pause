@@ -1,0 +1,43 @@
+name: Publish an existing APK build
+
+# Turns the APK from an earlier successful "Android APK" run into a GitHub
+# Release, without rebuilding.
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: 'Run ID of a successful "Android APK" run'
+        required: true
+      build_label:
+        description: 'Build number to show in the release name'
+        required: true
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: paisa-pause-apk
+          run-id: ${{ inputs.run_id }}
+          github-token: ${{ github.token }}
+          path: out
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ls -la out
+          VERSION=$(node -p "require('./app.json').expo.version")
+          TAG="v${VERSION}-build.${{ inputs.build_label }}"
+          gh release create "$TAG" out/*.apk \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "Paisa Pause ${VERSION} (build ${{ inputs.build_label }})" \
+            --notes "Android APK (arm64-v8a + armeabi-v7a) from run ${{ inputs.run_id }}. Open this page on your phone, tap the .apk, then allow installing from your browser if asked."
