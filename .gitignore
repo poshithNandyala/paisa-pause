@@ -40,3 +40,6 @@ yarn-error.*
 /ios
 /android
 /android
+
+# locally built APKs
+out/

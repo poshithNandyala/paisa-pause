@@ -2,10 +2,10 @@ import { router } from 'expo-router';
 import React from 'react';
 import { View } from 'react-native';
 import { isHoldConsumed } from '../domain/budget';
-import { addDays, epochFromLocal, formatDateMedium, localDateOf } from '../domain/dates';
+import { addDays, epochFromLocal, formatDateMedium, formatDateShort, localDateOf } from '../domain/dates';
 import type { Intention } from '../domain/types';
 import { useReady } from '../state/store';
-import { Body, Button, Card, EmptyState, H2, Money, Muted, Pill, RowWrap, Screen } from '../ui/kit';
+import { Body, Button, Card, EmptyState, H2, KeyValue, Money, Muted, Pill, RowWrap, Screen } from '../ui/kit';
 import { useSnackbar } from '../ui/Snackbar';
 import { SPACE } from '../ui/theme';
 
@@ -96,6 +96,19 @@ export default function WaitingList() {
       <Muted>
         Things you paused on. There's no deadline. Skipping keeps money in your plan; it doesn't add money to your accounts.
       </Muted>
+      {derived.kept.count > 0 ? (
+        <Card tone="soft">
+          <KeyValue
+            label={`Kept by skipping since ${formatDateShort(derived.keptRange.start)}`}
+            value={<Money value={derived.kept.kept} style={{ fontWeight: '800' }} />}
+            strong
+          />
+          <Muted>
+            {derived.kept.count} purchase{derived.kept.count === 1 ? '' : 's'} you decided against. This is money you didn't spend,
+            not money you earned.
+          </Muted>
+        </Card>
+      ) : null}
       {ready.length ? <H2>Ready to look at again</H2> : null}
       {ready.map((i) => item(i, true))}
       {waiting.length ? <H2>Waiting</H2> : null}

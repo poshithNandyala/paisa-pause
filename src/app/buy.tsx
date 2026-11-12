@@ -40,6 +40,7 @@ export default function BeforeIBuy() {
   const b = derived.budget;
   const preview = b && amount ? previewPurchase(b, amount, categoryId) : null;
   const question = DIGITAL_PURCHASE_CATEGORY_IDS.includes(categoryId) ? QUESTIONS[categoryId] : undefined;
+  const goal = snapshot.goals.find((g) => g.deletedAt === null);
 
   const makeIntention = (status: Intention['status'], reconsiderAt: number | null, at: number): Intention => ({
     id: actions.newId(),
@@ -146,6 +147,12 @@ export default function BeforeIBuy() {
             ) : (
               <Muted style={{ color: c.amber }}>You're already {formatPaise(preview.comparison.overBy)} over your plan.</Muted>
             )}
+            {goal && goal.target > 0 ? (
+              <Muted>
+                That's {Math.min(100, Math.round((amount * 100) / goal.target))}% of your {goal.name} goal (
+                {formatPaise(goal.target)}).
+              </Muted>
+            ) : null}
             <Muted>Just a preview. Nothing has changed.</Muted>
           </Card>
         ) : (

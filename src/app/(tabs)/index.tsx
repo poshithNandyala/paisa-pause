@@ -99,6 +99,24 @@ export default function Today() {
 
       {s.mode === 'account_aware' && derived.availability ? <AvailabilityCard /> : null}
 
+      {derived.kept.count > 0 ? (
+        <Card tone="soft">
+          <Label>KEPT BY PAUSING</Label>
+          <Money value={derived.kept.kept} style={{ fontSize: 26, fontWeight: '800' }} />
+          <Muted>
+            {derived.kept.count} optional purchase{derived.kept.count === 1 ? '' : 's'} you decided against since{' '}
+            {formatDateShort(derived.keptRange.start)}. Nothing was spent, so it stays in your plan.
+          </Muted>
+          {derived.kept.waitingCount > 0 ? (
+            <Muted>
+              {formatPaise(derived.kept.waiting)} more is still paused, not spent, on {derived.kept.waitingCount} item
+              {derived.kept.waitingCount === 1 ? '' : 's'}.
+            </Muted>
+          ) : null}
+          <Button label="Open waiting list" kind="quiet" compact onPress={() => router.push('/waiting')} />
+        </Card>
+      ) : null}
+
       <View style={{ gap: SPACE.sm }}>
         <Button label="Add expense" onPress={() => router.push('/add')} hint="Opens the amount keypad" />
         <Button label="Before I buy" kind="secondary" onPress={() => router.push('/buy')} hint="Preview a purchase without recording it" />

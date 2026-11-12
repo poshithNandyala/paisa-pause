@@ -11,6 +11,7 @@ import {
 } from '../domain/ledger';
 import type { Paise } from '../domain/money';
 import { upcomingOccurrences, type Occurrence } from '../domain/recurring';
+import { keptSummary, type KeptRange, type KeptSummary } from '../domain/kept';
 import { incompleteEntries } from '../domain/reports';
 import { buildSuggestions, type Suggestion } from '../domain/suggestions';
 import type { Account, BudgetPeriod, Card, Category, Intention, Snapshot, Transaction } from '../domain/types';
@@ -27,6 +28,9 @@ export interface Derived {
   waiting: Intention[];
   reconsiderReady: Intention[];
   boughtIntentionIds: Set<string>;
+  /** Money you decided not to spend, over the range below. */
+  kept: KeptSummary;
+  keptRange: KeptRange;
   receivables: Receivable[];
   upcoming: Occurrence[];
   suggestions: Suggestion[];
@@ -67,6 +71,10 @@ export function derive(snapshot: Snapshot, now: number): Derived {
   );
   const waiting = snapshot.intentions.filter((i) => i.status !== 'skipped' && !boughtIntentionIds.has(i.id));
   const reconsiderReady = waiting.filter((i) => i.reconsiderAt !== null && i.reconsiderAt <= now);
+  const keptRange: KeptRange = period
+    ? { start: period.startDate, end: period.endDate }
+    : { start: `${today.slice(0, 7)}-01`, end: today };
+  const kept = keptSummary(snapshot, s.timezone, keptRange, boughtIntentionIds);
 
   const categoriesById = new Map(snapshot.categories.map((c) => [c.id, c]));
   const accountsById = new Map(snapshot.accounts.map((a) => [a.id, a]));
@@ -99,6 +107,8 @@ export function derive(snapshot: Snapshot, now: number): Derived {
     waiting,
     reconsiderReady,
     boughtIntentionIds,
+    kept,
+    keptRange,
     receivables: receivables(snapshot),
     upcoming: upcomingOccurrences(snapshot.obligations, snapshot.transactions, snapshot.obligationSkips, today, 30),
     suggestions: buildSuggestions(snapshot, today, budget),
