@@ -38,8 +38,16 @@ jobs:
       - name: Typecheck
         run: npx tsc --noEmit
 
-      - name: Unit tests
-        run: npx vitest run --passWithNoTests
+      - name: Lint
+        run: npx expo lint
+        env:
+          EXPO_OFFLINE: 1
+
+      - name: Money, ledger and database tests
+        run: npx vitest run
+
+      - name: Screen render tests
+        run: npx jest --ci
 
       - name: Generate Android project (expo prebuild)
         run: npx expo prebuild --platform android --no-install
